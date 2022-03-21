@@ -32,6 +32,7 @@ def get_kgxref(output: str):
 	    s.write(content)
 	    s.close()
 
+# get hg19 chromosome json
 def get_chr_data(chr_num):
 	
 	chr_data = requests.get(f'https://api.genome.ucsc.edu/getData/track?genome=hg19;track=knownGene;chrom=chr{chr_num}').json()
