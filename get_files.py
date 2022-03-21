@@ -2,14 +2,14 @@ import requests
 import json
 
 # get kgXref file
-def get_kgxref(output: str):
+def get_kgxref(output: str, db: str):
 	ref_link = 'https://genome.ucsc.edu/cgi-bin/hgTables'
 	req_body = {
 		'hgsid': '1309789803_QZsv668MTZBAeDgcSxj8075rUOsC',
 		'jsh_pageVertPos': '0',
 		'clade': 'mammal',
 		'org':	'Human',
-		'db': 'hg19',
+		'db': db,
 		'hgta_group': 'genes',
 		'hgta_track': 'knownGene',
 		'hgta_table': 'kgXref',
@@ -33,9 +33,8 @@ def get_kgxref(output: str):
 	    s.close()
 
 # get hg19 chromosome json
-def get_chr_data(chr_num):
-	
-	chr_data = requests.get(f'https://api.genome.ucsc.edu/getData/track?genome=hg19;track=knownGene;chrom=chr{chr_num}').json()
+def get_chr_data(chr_num, db: str):
+	chr_data = requests.get(f'https://api.genome.ucsc.edu/getData/track?genome={db};track=knownGene;chrom=chr{chr_num}').json()
 
 	with open(f'chr{chr_num}_data.json', 'w') as s:
 		json.dump(chr_data, s)
