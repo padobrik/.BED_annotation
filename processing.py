@@ -1,5 +1,3 @@
-
-# get target panel file
 from get_files import get_kgxref, get_chr_data, get_sequence
 from Bio.Seq import Seq
 from Bio.Blast import NCBIWWW, NCBIXML
