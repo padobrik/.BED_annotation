@@ -4,34 +4,8 @@ from get_files import get_kgxref, get_chr_data, get_sequence
 from Bio.Seq import Seq
 from Bio.Blast import NCBIWWW, NCBIXML
 import json
-
-# input = panel, ref_db
-print('Enter target panel file name')
-panel_name = input()
-
-panel_data = []
-other_data = []
-
-with open(panel_name, 'r') as input_file:
-	for line in input_file:
-		panel_data.append(line.strip().split()[:3])
-		other_data.append(line.strip().split()[3:])
-
-ref_db = other_data[0][4].split('=')[1]
-
-# generate kgXref file:
-kgXref = {}
-get_kgxref('genes_ref.txt', ref_db)
-
-with open('genes_ref.txt', 'r') as genes_ref:
-	for line in genes_ref:
-		line_list = line.strip().split('\t')
-		kgXref[line_list[0]] = line_list[4]
-
-# extract necessary chromosomes data
-# panel_chromosomes = tuple(set([panel_data[i][0].strip('chr') for i in range(1, len(panel_data))]))
-# for i in range(len(panel_chromosomes)):
-# 	get_chr_data(panel_chromosomes[i], ref_db)
+import os
+from pathlib import Path
 
 def search_gene(line, chr_num, start, end):
 	with open(f'{chr_num}_data.json') as data:
@@ -61,10 +35,37 @@ def search_homologue(sequence):
 	for b in blast_records:
 		for alignment in b.alignments:
 			for hsp in alignments.hsp:
-				print(alignment.title)
+				print(alignment.title) 
 				print(hsp.expect)
 				print(hsp.match[0:15] + '...')
 
+# input = panel, ref_db
+print('Enter target panel file name')
+panel_name = input()
+print('\n*** PREPARING DATA ***')
+panel_data = []
+other_data = []
+
+with open(panel_name, 'r') as input_file:
+	for line in input_file:
+		panel_data.append(line.strip().split()[:3])
+		other_data.append(line.strip().split()[3:])
+
+ref_db = other_data[0][4].split('=')[1]
+
+# generate kgXref file:
+get_kgxref('genes_ref.txt', ref_db)
+
+kgXref = {}
+with open('genes_ref.txt', 'r') as genes_ref:
+	for line in genes_ref:
+		line_list = line.strip().split('\t')
+		kgXref[line_list[0]] = line_list[4]
+
+# extract chromosomes data
+panel_chromosomes = tuple(set([panel_data[i][0].strip('chr') for i in range(1, len(panel_data))]))
+for i in range(len(panel_chromosomes)):
+	get_chr_data(panel_chromosomes[i], ref_db)
 
 print('\n*** PROCESSING ***')
 print('Doing Task 1 (T1): Identification of genes and their exons')
@@ -102,16 +103,11 @@ with open('panel_output.bed', 'w') as output_file:
 		output_line = panel_output1[i - 1] + other_data[i]
 		output_file.write('\t'.join(output_line) + '\n')
 	output_file.close()
-
-#### CODE FOR REWRITING DATA TO THE ORIGINAL FILE ####
 print('Task 1 done')
 
 print('Doing Task 2 (T2): Search for homologue regions')
 
-#### CODE FOR IDENTIFICATION OF HOMOLOGUE REGIONS AND WRITING THEM TO NEW FILE ####
-# do that using BioPython
 print('Search may take some time, please wait')
 for line in panel_data[1:]:
 	sequence = Seq(get_sequence(ref_db, line[0], line[1], line[2])) # Wrapped requested sequence into BioPython object
 	output = search_homologue(sequence)
-print(output)

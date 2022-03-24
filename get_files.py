@@ -1,8 +1,6 @@
 import requests
 import json
-import http.client
 
-requests_path = '/requests_data'
 # get kgXref file
 def get_kgxref(output: str, db: str):
 	ref_link = 'https://genome.ucsc.edu/cgi-bin/hgTables'
@@ -30,7 +28,7 @@ def get_kgxref(output: str, db: str):
 	kgXref = requests.post(ref_link, req_body)
 	content = kgXref.content
 
-	with open(f'{requests_path}/{output}', 'wb') as s:
+	with open(f'{output}', 'wb') as s:
 	    s.write(content)
 	    s.close()
 
@@ -38,7 +36,7 @@ def get_kgxref(output: str, db: str):
 def get_chr_data(chr_num, db: str):
 	chr_data = requests.get(f'https://api.genome.ucsc.edu/getData/track?genome={db};track=knownGene;chrom=chr{chr_num}').json()
 
-	with open(f'{requests_path}/chr{chr_num}_data.json', 'w') as s:
+	with open(f'chr{chr_num}_data.json', 'w') as s:
 		json.dump(chr_data, s)
 		s.close()
 
